@@ -1,140 +1,187 @@
-# FindSafe AI
+# 🔍 FindSafe AI — Intelligent Missing Person Search & Investigation Platform
 
-**Privacy-Conscious Missing Person Detection, Matching & Reunification Platform**
+[![License: MIT](https://img.shields.io/badge/License-MIT-amber.svg)](https://opensource.org/licenses/MIT)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110.0-009688.svg?logo=fastapi)](https://fastapi.tiangolo.com)
+[![React](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react)](https://reactjs.org)
+[![Vite](https://img.shields.io/badge/Vite-5.0-646CFF.svg?logo=vite)](https://vitejs.dev)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E.svg?logo=supabase)](https://supabase.com)
+[![YOLOv8](https://img.shields.io/badge/Computer_Vision-YOLOv8-FF6F00.svg)](https://ultralytics.com)
 
-FindSafe AI is an authorized public-safety platform designed to assist law enforcement and investigation teams in locating missing persons using evidence-based visual matching, time/location analysis, and privacy-first database architecture.
+**FindSafe AI** is an advanced, privacy-conscious public safety investigation platform designed to assist authorized teams, emergency response personnel, and law enforcement in rapidly locating and reuniting missing persons. 
 
-> **Current Project Status: Phase 1 Completed**  
-> *Phase 1 establishes the application foundation, shell navigation, Supabase connectivity, and API contracts. AI/CV modules (YOLO, ByteTrack, OSNet) are implemented in subsequent phases.*
-
----
-
-## Technology Stack
-
-- **Frontend**: React 18, Vite, TypeScript, Tailwind CSS, React Router v6, Axios, Lucide React, React Leaflet
-- **Backend**: Python 3.11+, FastAPI, Uvicorn, Pydantic (pydantic-settings), SQLAlchemy, httpx
-- **Database & Cloud**: Supabase PostgreSQL, Supabase Storage, Supabase Auth
+By combining **multi-camera CCTV computer vision (YOLOv8 + Re-ID tracking)**, **institutional database vector matching**, and **multi-modal evidence synthesis**, FindSafe AI accelerates critical golden-hour search operations.
 
 ---
 
-## System Architecture
+## 🌟 Key Capabilities
 
-```
-                  FINDSAFE AI
-                       |
-             ┌─────────┴─────────┐
-             |                   |
-        FRONTEND              BACKEND
-             |                   |
-     React + Vite           FastAPI
-     TypeScript             Python
-     Tailwind CSS               |
-             |                   |
-             └──────────┬────────┘
-                        |
-                     Supabase
-               ┌────────┼────────┐
-               |        |        |
-           PostgreSQL Storage   Auth
-```
+### 1. 📹 Multi-Camera CCTV Crowd Search
+- **YOLOv8 Detection & Tracking**: Frame-by-frame person detection, bounding-box extraction, and camera-to-camera tracking.
+- **Visual Re-Identification (Re-ID)**: Color histogram matching and visual feature scoring against reference case photos.
+- **Multi-Angle Support**: Simultaneously process multiple CCTV video feeds (overhead, side-angle, entrance/exit cameras) to generate correlated candidate sightings.
 
-For complete architectural details, see [`docs/architecture.md`](file:///c:/Users/skeer/OneDrive/Desktop/FindSafe/docs/architecture.md).
+### 2. 📋 Institutional Records Search
+- **Multi-Source Ingestion**: Query records across shelter registries, hospital admissions, transit networks, and missing person databases.
+- **Attribute & Semantic Vector Matching**: Search by clothing attributes, age group, physical descriptors, and last-seen locations.
 
----
+### 3. 🌐 Unified "Search Everywhere"
+- **Cross-Source Evidence Synthesis**: Fuses live CCTV candidate detections with institutional records into a prioritized evidence queue.
+- **Corroboration Confidence Scoring**: Computes cross-source confidence scores (0–100%) based on visual similarity, time-window proximity, and attribute consistency.
 
-## Project Structure
+### 4. 🧭 Operations Center & Investigation Workspace
+- **Real-Time Timeline Replay**: Interactive frame-by-frame replay of camera sightings with time stamps and camera identifiers.
+- **Evidence Decision Board**: Human-in-the-loop review workflow for marking candidate sightings as *Verified*, *Under Review*, or *Dismissed*.
 
-```
-FINDSAFE-AI/
-├── frontend/             # React + Vite + TypeScript + Tailwind UI Shell
-├── backend/              # FastAPI Python Backend Service
-├── docs/                 # System Architecture & Database Specifications
-│   ├── architecture.md
-│   ├── database.md
-│   └── development-phases.md
-├── .gitignore
-└── README.md
-```
+### 5. 📄 Official PDF Investigation Reports
+- **Automated Case Dossier Generation**: Instant generation of official multi-page PDF case reports.
+- **Complete Evidence Breakdown**: Includes profile details, CCTV candidate detections, institutional records matches, and chain of custody documentation.
 
 ---
 
-## Quick Start Guide
+## 🏗️ System Architecture
+
+```
+                                  FINDSAFE AI PLATFORM
+                                            │
+               ┌────────────────────────────┴────────────────────────────┐
+               ▼                                                         ▼
+        FRONTEND (UI/UX)                                         BACKEND (API & AI)
+    ┌───────────────────────────┐                             ┌───────────────────────────┐
+    │  React 18 + TypeScript    │                             │  FastAPI (Python 3.11+)   │
+    │  Vite Dev & Bundler       │                             │  YOLOv8 Computer Vision   │
+    │  Tailwind CSS             │◄────────── REST ───────────►│  Re-ID Matching Engine    │
+    │  Lucide Icons + Leaflet   │          (JSON/HTTP)        │  ReportLab PDF Synthesizer│
+    └─────────────┬─────────────┘                             └─────────────┬─────────────┘
+                  │                                                         │
+                  └─────────────────────────┬───────────────────────────────┘
+                                            │
+                                            ▼
+                                  SUPABASE CLOUD / DB
+                      ┌───────────────────────────────────────────┐
+                      │  • PostgreSQL with Row Level Security     │
+                      │  • Supabase Auth & Session Management     │
+                      │  • Storage Buckets (Case Media & Reports) │
+                      │  • Relational Schema (11 Migration Steps) │
+                      └───────────────────────────────────────────┘
+```
+
+---
+
+## 📂 Repository Structure
+
+```
+FindSafe/
+├── backend/                  # FastAPI Python backend
+│   ├── app/
+│   │   ├── ai/               # Computer vision, YOLOv8 & Re-ID services
+│   │   ├── api/routes/       # REST endpoints (cases, video, records, reports)
+│   │   ├── core/             # Configuration & security settings
+│   │   ├── database/         # Supabase client & DB abstractions
+│   │   ├── models/           # Pydantic & domain models
+│   │   └── services/         # Business logic (reports, tracking, matching)
+│   ├── requirements.txt      # Python dependencies
+│   └── .env.example          # Backend configuration template
+│
+├── frontend/                 # React 18 + Vite TypeScript application
+│   ├── src/
+│   │   ├── components/       # Reusable UI components & layouts
+│   │   ├── pages/            # View pages (Dashboard, Cases, Search, Reports)
+│   │   ├── routes/           # Protected routes & navigation
+│   │   ├── services/         # Axios API clients & Supabase auth
+│   │   └── styles/           # Tailwind CSS styles
+│   ├── package.json          # Frontend dependencies
+│   └── .env.example          # Frontend configuration template
+│
+├── supabase/
+│   └── migrations/           # 11 SQL migrations for database schema
+│
+├── demo-data/                # Sample datasets for rapid testing & evaluation
+├── docs/                     # Architecture & database documentation
+├── .gitignore                # Comprehensive Git protection rules
+└── README.md                 # Project documentation
+```
+
+---
+
+## 🚀 Quick Start Guide
+
+### Prerequisites
+- **Node.js** (v18+) & **npm**
+- **Python** (v3.10+)
+- **Supabase** account (Free tier or local instance)
+
+---
 
 ### 1. Backend Setup
 
 ```bash
+# 1. Navigate to backend directory
 cd backend
+
+# 2. Create and activate virtual environment
 python -m venv venv
 
-# Activate virtual environment:
 # Windows (PowerShell):
 .\venv\Scripts\Activate.ps1
-# Linux / macOS:
+# macOS / Linux:
 source venv/bin/activate
 
+# 3. Install dependencies
 pip install -r requirements.txt
-cp .env.example .env
 
-# Run FastAPI backend server
+# 4. Configure environment variables
+cp .env.example .env
+# Fill in your SUPABASE_URL, SUPABASE_ANON_KEY, and SUPABASE_SERVICE_ROLE_KEY in .env
+
+# 5. Start the FastAPI backend server
 uvicorn app.main:app --reload --port 8000
 ```
 
-Verify backend health at: [http://localhost:8000/api/health](http://localhost:8000/api/health)
+Backend API will be live at: **[http://localhost:8000](http://localhost:8000)**  
+Interactive Swagger Docs: **[http://localhost:8000/docs](http://localhost:8000/docs)**
+
+---
 
 ### 2. Frontend Setup
 
 ```bash
+# 1. Navigate to frontend directory (in a new terminal)
 cd frontend
-npm install
-cp .env.example .env
 
-# Run Vite dev server
+# 2. Install Node dependencies
+npm install
+
+# 3. Configure environment variables
+cp .env.example .env
+# Fill in VITE_API_BASE_URL, VITE_SUPABASE_URL, and VITE_SUPABASE_ANON_KEY in .env
+
+# 4. Start Vite development server
 npm run dev
 ```
 
-Open application shell at: [http://localhost:5173](http://localhost:5173)
+Open your browser at: **[http://localhost:5173](http://localhost:5173)**
 
 ---
 
-## Supabase Configuration
+## 🗄️ Database Setup (Supabase)
 
-1. Create a Supabase project at [https://supabase.com](https://supabase.com).
-2. Configure environment variables in `frontend/.env` and `backend/.env`:
-
-**Frontend (`frontend/.env`):**
-```env
-VITE_API_BASE_URL=http://localhost:8000/api
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-**Backend (`backend/.env`):**
-```env
-APP_NAME=FindSafe AI
-ENVIRONMENT=development
-API_PREFIX=/api
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-FRONTEND_URL=http://localhost:5173
-```
-
-> **Security Note**: The `SUPABASE_SERVICE_ROLE_KEY` is reserved strictly for backend administration and is never exposed to the frontend bundle.
+1. Create a project at [supabase.com](https://supabase.com).
+2. Run the SQL migration scripts in order from [`supabase/migrations/`](file:///c:/Users/skeer/OneDrive/Desktop/FindSafe/supabase/migrations):
+   - `20260926000000_findsafe_schema.sql` (Base schema & cases)
+   - `20260926010000_findsafe_phase4_schema.sql` through `20260926100000_findsafe_phase14_schema.sql`
+3. Create a Supabase Storage bucket named `findsafe-media` (Public or Authenticated).
 
 ---
 
-## Development Phases & Roadmap
+## 🛡️ Privacy, Security & Compliance
 
-1. **Phase 1 (Completed)**: Core Architecture & Application Shell Foundation
-2. **Phase 2**: Authorized Case Management & Supabase Storage Integration
-3. **Phase 3**: AI/CV Vision Pipeline (YOLO + ByteTrack + OSNet)
-4. **Phase 4**: Multi-Modal Evidence Fusion & Match Verification Queue
-5. **Phase 5**: Audit Compliance, Reporting & Production Deployment
+- **Human-in-the-Loop Decisions**: AI outputs are framed as investigatory leads. Final identification requires verification by authorized human investigators.
+- **Privacy by Design**: Operates on non-biometric visual descriptors (clothing colors, spatial-temporal sequence) rather than biometric facial templates.
+- **Row Level Security (RLS)**: Case data is secured with Supabase RLS policies to restrict unauthorized data access.
+- **Protected Secrets**: Local `.env` files, API keys, and temporary uploads are strictly excluded from version control.
 
 ---
 
-## Privacy & Security Principles
+## 📄 License
 
-- **Privacy by Design**: Search operations operate strictly on non-sensitive visual attributes and reference photographs.
-- **Authorized Use**: Access restricted to verified operators with audit logging.
-- **Data Protection**: Supabase Row-Level Security (RLS) policies isolate case files.
+This project is licensed under the **MIT License**.
