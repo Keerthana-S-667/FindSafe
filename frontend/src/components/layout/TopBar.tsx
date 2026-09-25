@@ -1,8 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Menu, User, LogOut, Bell, ShieldCheck, Server } from 'lucide-react';
+import { Menu, LogOut, Bell } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
-import { useHealth } from '../../hooks/useHealth';
 import { Dropdown } from '../ui/Dropdown';
 import { IconButton } from '../ui/IconButton';
 
@@ -24,7 +23,6 @@ const pageTitles: Record<string, { title: string; category: string }> = {
 export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
   const location = useLocation();
   const { user, logout } = useAuth();
-  const { health } = useHealth();
 
   const currentPath = location.pathname;
   let pageInfo = pageTitles[currentPath];
@@ -69,12 +67,6 @@ export const TopBar: React.FC<TopBarProps> = ({ onMenuClick }) => {
       </div>
 
       <div className="flex items-center gap-3">
-        {/* Subtle System Connection Indicator */}
-        <div className="hidden sm:flex items-center gap-2 px-2.5 py-1 bg-surface-200 border border-surface-300 rounded-lg text-xs text-surface-800">
-          <Server className="w-3.5 h-3.5 text-brand-600" />
-          <span>Backend: <strong className="text-surface-950 font-bold">{health?.status || 'checking'}</strong></span>
-        </div>
-
         {/* Notifications Icon */}
         <IconButton
           icon={<Bell className="w-4 h-4" />}
