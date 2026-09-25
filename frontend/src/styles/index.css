@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #A64F19;
+  --color-primary-hover: #8C3E11;
+  --color-primary-muted: rgba(166, 79, 25, 0.12);
+
+  --color-background: #FAF5EE;
+  --color-surface: #F4ECE2;
+  --color-surface-elevated: #EAE1D5;
+  --color-border: #D8CCBD;
+
+  --color-text-primary: #3D2213;
+  --color-text-secondary: #5E3A24;
+  --color-text-muted: #8C664D;
+
+  --color-success: #2D6A4F;
+  --color-warning: #AC5D13;
+  --color-danger: #A42A2A;
+  --color-info: #235773;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbar for Command Interface */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF5EE;
+}
+::-webkit-scrollbar-thumb {
+  background: #D8CCBD;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #BDB09E;
+}
+
+/* Leaflet map base layer adjustments */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  background-color: #FAF5EE !important;
+}
+

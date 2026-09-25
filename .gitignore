@@ -1,0 +1,46 @@
+# Environment & Secrets (NEVER commit these)
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Node Dependencies & Build Outputs
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+.next/
+
+# Python & Virtual Environments
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+**/venv/
+ENV/
+env/
+
+# Media & Uploads (Heavy user-uploaded video / images)
+uploads/
+**/uploads/
+scratch/
+**/scratch/
+tmp/
+**/tmp/
+*.log
+**/*.log
+
+# IDE & OS Specific
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini

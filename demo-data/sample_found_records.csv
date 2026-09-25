@@ -1,0 +1,11 @@
+# SYNTHETIC DEMO DATA — NOT REAL PERSONAL DATA
+# FOR DEMONSTRATION & HACKATHON TESTING ONLY
+record_id,source_type,reference_name,age_range,upper_clothing,lower_clothing,bag,accessories,location,latitude,longitude,record_timestamp,notes,image_path
+POL-2026-0891,police,Unidentified male reported near Metro Station,25-35,Blue Jacket,Black Jeans,Black Backpack,Cap,Central Metro Station Gate 3,28.6139,77.2090,2026-09-25T14:45:00Z,Found disoriented near transit kiosk.,
+HOSP-2026-0412,hospital,Admitted Patient Room 304,20-30,Red Hoodie,Dark Pants,None,Glasses,City General Emergency Ward,28.6180,77.2150,2026-09-25T16:20:00Z,Admitted for minor dehydration. Unable to confirm ID immediately.,
+SHEL-2026-0105,shelter,Temporary Intake #105,25-35,Blue Jacket,Dark Jeans,Blue Backpack,Watch,Hope Shelter Main Hall,28.6210,77.2050,2026-09-25T17:10:00Z,Accepted for overnight stay. Carrying large blue shoulder bag.,
+PUB-2026-0988,public_report,Citizen Sighting Tip #988,20-30,Red Top,Black Trousers,Backpack,Cap,City Park North Entrance,28.6100,77.2180,2026-09-25T15:30:00Z,Public report submitted via community portal. Person matching description resting on park bench.,
+POL-2026-0904,police,Unclaimed Belongings & Individual,40-50,Green Shirt,Khaki Trousers,Duffle Bag,None,West District Plaza,28.6300,77.1950,2026-09-25T12:00:00Z,Patrol officer encountered individual asking for directions.,
+HOSP-2026-0419,hospital,Clinic Walk-in Case,15-25,White T-Shirt,Blue Jeans,Red Backpack,Hat,St Jude Community Clinic,28.6050,77.2250,2026-09-25T18:00:00Z,Treated for minor sprain and discharged.,
+SHEL-2026-0112,shelter,Community Center Intake,30-40,Black Coat,Gray Pants,None,Glasses,Haven House Shelter,28.6280,77.2100,2026-09-25T19:30:00Z,Provided meals and warm clothing.,
+PUB-2026-1002,public_report,Market Sighting Tip #1002,25-35,Blue Sweater,Black Jeans,Dark Backpack,Cap,Central Market North Gate,28.6150,77.2120,2026-09-25T14:15:00Z,Spotted buying water near produce vendor.
