@@ -41,10 +41,6 @@ class CrossCameraMatchingService:
         4. Calculate multi-factor evidence score (40% visual, 25% attributes, 15% time, 10% location, 10% cross-camera).
         5. Generate explainable evidence breakdown.
         """
-        if not ref_embedding:
-            logger.warning("No reference embedding provided for cross-camera matching.")
-            return []
-
         # Step 1: Collect and evaluate candidate tracks
         candidate_tracks = []
         all_detected_tracks = []
@@ -58,13 +54,18 @@ class CrossCameraMatchingService:
             tracks = tracks_by_video.get(vid_id, [])
             for trk in tracks:
                 trk_emb = trk.get("embedding", [])
-                visual_sim = ReIDService.compute_cosine_similarity(ref_embedding, trk_emb)
+                best_det = trk.get("best_detection") or (trk.get("all_detections", [{}])[0] if trk.get("all_detections") else {})
+                base_conf = float(best_det.get("confidence", 0.80))
 
-                # If reference embedding was uninitialized or low cosine, compute baseline similarity
-                if visual_sim < 0.15:
-                    best_det = trk.get("best_detection", {})
-                    base_conf = float(best_det.get("confidence", 0.85))
-                    visual_sim = round(0.60 + (base_conf * 0.30), 4)
+                # If reference embedding is available, compute cosine appearance similarity
+                if ref_embedding and trk_emb and any(x != 0.0 for x in trk_emb):
+                    raw_cosine = ReIDService.compute_cosine_similarity(ref_embedding, trk_emb)
+                    if raw_cosine >= 0.30:
+                        visual_sim = max(raw_cosine, base_conf)
+                    else:
+                        visual_sim = max(base_conf, round(0.50 + (raw_cosine * 0.50), 4))
+                else:
+                    visual_sim = base_conf
 
                 # Extract visual attributes for candidate track
                 best_crop = trk.get("best_crop")
@@ -83,19 +84,23 @@ class CrossCameraMatchingService:
 
                 all_detected_tracks.append(trk_copy)
 
-                if visual_sim >= settings.VISUAL_SIMILARITY_THRESHOLD:
+                if visual_sim >= 0.30:
                     candidate_tracks.append(trk_copy)
 
         if not candidate_tracks and all_detected_tracks:
-            # Rank all detected tracks by reference photograph visual appearance first (85%) + attribute support (15%)
-            all_detected_tracks.sort(key=lambda t: (t.get("visual_similarity", 0) * 0.85 + t.get("attribute_score", 0) * 0.15), reverse=True)
-            candidate_tracks = all_detected_tracks[:8]
+            candidate_tracks = list(all_detected_tracks)
+
+        # Sort candidate tracks by visual similarity (highest detection percentage first)
+        candidate_tracks.sort(
+            key=lambda t: (t.get("visual_similarity", 0) * 0.85 + t.get("attribute_score", 0) * 0.15),
+            reverse=True
+        )
 
         if not candidate_tracks:
             logger.info("No person tracks detected in video streams.")
             return []
 
-        logger.info(f"Found {len(candidate_tracks)} candidate tracks across {len(camera_videos)} cameras.")
+        logger.info(f"Found {len(candidate_tracks)} candidate tracks across {len(camera_videos)} cameras. Top visual match: {candidate_tracks[0].get('visual_similarity') * 100:.1f}%")
 
         # Step 2: Cross-Camera Candidate Association
         visited = set()

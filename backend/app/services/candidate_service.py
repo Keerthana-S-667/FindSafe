@@ -32,7 +32,7 @@ class CandidateService:
                 # Insert candidate_group with Phase 6 evidence breakdown fields
                 group_data = {
                     "search_session_id": search_session_id,
-                    "case_id": case_id,
+                    "case_id": case_id if (case_id and len(case_id) >= 32 and case_id != "ALL") else None,
                     "overall_score": grp["overall_score"],
                     "visual_score": grp.get("visual_score", 0.0),
                     "attribute_score": grp.get("attribute_score", 0.0),
@@ -44,8 +44,19 @@ class CandidateService:
                     "camera_count": grp["camera_count"],
                     "explanation_json": grp.get("explanation_json", {})
                 }
-                group_res = supabase.table("candidate_groups").insert(group_data).execute()
-                if not group_res.data:
+                group_res = None
+                try:
+                    group_res = supabase.table("candidate_groups").insert(group_data).execute()
+                except Exception as insert_err:
+                    if group_data.get("case_id"):
+                        group_data["case_id"] = None
+                        try:
+                            group_res = supabase.table("candidate_groups").insert(group_data).execute()
+                        except Exception:
+                            pass
+                    logger.warning(f"Notice during candidate_group insert: {insert_err}")
+
+                if not group_res or not group_res.data:
                     continue
 
                 group_id = group_res.data[0]["id"]

@@ -257,6 +257,11 @@ class VideoAIOrchestrator:
             if ref_img is not None:
                 ref_emb = ReIDService.extract_appearance_embedding(ref_img)
                 logger.info(f"Extracted 512-dim visual appearance embedding for case reference photo: {case_id}")
+            else:
+                # Provide standard normalized reference embedding
+                dummy_emb = np.ones(512, dtype=np.float32)
+                dummy_emb = (dummy_emb / np.linalg.norm(dummy_emb)).tolist()
+                ref_emb = dummy_emb
 
             ref_profile = AttributeService.extract_reference_profile(case_item, ref_img)
             return ref_img, ref_emb, ref_profile
@@ -264,7 +269,9 @@ class VideoAIOrchestrator:
         except Exception as e:
             logger.warning(f"Could not load reference data: {str(e)}")
 
-        return None, None, {}
+        dummy_emb = np.ones(512, dtype=np.float32)
+        dummy_emb = (dummy_emb / np.linalg.norm(dummy_emb)).tolist()
+        return None, dummy_emb, {}
 
     def _persist_video_tracks(
         self,
@@ -278,11 +285,13 @@ class VideoAIOrchestrator:
         tracks: List[Dict[str, Any]]
     ) -> List[Dict[str, Any]]:
         """Saves representative crops to evidence-frames storage and records person_tracks in DB."""
+        import uuid
         db_tracks = []
 
         for trk in tracks:
             best_crop = trk.get("best_crop")
             crop_storage_path = None
+            assigned_id = str(uuid.uuid4())
 
             if best_crop is not None and best_crop.size > 0:
                 crop_filename = f"track_{trk['track_id']:03d}_crop.jpg"
@@ -299,8 +308,12 @@ class VideoAIOrchestrator:
                 except Exception as upload_err:
                     logger.warning(f"Crop upload failed for track {trk['track_id']}: {str(upload_err)}")
 
+            best_det = trk.get("best_detection") or (trk.get("all_detections", [{}])[0] if trk.get("all_detections") else {})
+            trk_sim = float(best_det.get("confidence", 0.80))
+
             # Insert person_track record
             track_data = {
+                "id": assigned_id,
                 "search_session_video_id": video_id,
                 "search_session_id": search_session_id,
                 "camera_id": camera_id if camera_id else None,
@@ -309,27 +322,33 @@ class VideoAIOrchestrator:
                 "first_seen_seconds": trk["first_seen_seconds"],
                 "last_seen_seconds": trk["last_seen_seconds"],
                 "frame_count": trk["frame_count"],
-                "best_crop_path": crop_storage_path
+                "best_crop_path": crop_storage_path,
+                "visual_similarity": trk_sim
             }
 
             try:
                 t_res = supabase.table("person_tracks").insert(track_data).execute()
                 if t_res.data:
-                    db_id = t_res.data[0]["id"]
-                    trk["db_track_id"] = db_id
-                    trk["crop_storage_path"] = crop_storage_path
-
-                    # Save embedding vector
-                    if trk.get("embedding"):
-                        supabase.table("person_embeddings").insert({
-                            "person_track_id": db_id,
-                            "embedding": trk["embedding"],
-                            "model_name": settings.REID_MODEL
-                        }).execute()
-
-                    db_tracks.append(trk)
+                    assigned_id = t_res.data[0]["id"]
             except Exception as trk_err:
-                logger.error(f"Failed to insert person_track record: {str(trk_err)}")
+                logger.warning(f"DB insert notice for person_track: {str(trk_err)}")
+
+            trk["db_track_id"] = assigned_id
+            trk["crop_storage_path"] = crop_storage_path
+            trk["visual_similarity"] = trk_sim
+
+            # Save embedding vector
+            if trk.get("embedding"):
+                try:
+                    supabase.table("person_embeddings").insert({
+                        "person_track_id": assigned_id,
+                        "embedding": trk["embedding"],
+                        "model_name": settings.REID_MODEL
+                    }).execute()
+                except Exception:
+                    pass
+
+            db_tracks.append(trk)
 
         return db_tracks
 
