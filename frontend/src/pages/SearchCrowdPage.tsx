@@ -51,23 +51,23 @@ export const SearchCrowdPage: React.FC = () => {
   const [cases, setCases] = useState<MissingPersonCase[]>([]);
   const [selectedCaseId, setSelectedCaseId] = useState<string>(initialCaseId);
 
-  // Multi-Camera Feeds state
+  // Multi-Camera Feeds state with clean default names
   const [cameraFeeds, setCameraFeeds] = useState<CameraFeed[]>([
     {
       id: 'cam-1',
-      camera_name: 'Camera 01 - North Entrance',
-      location_name: 'Central Transit Gate A',
-      latitude: 13.0827,
-      longitude: 80.2707,
+      camera_name: 'Camera 01',
+      location_name: '',
+      latitude: null,
+      longitude: null,
       video_file: null,
       video_preview_url: null
     },
     {
       id: 'cam-2',
-      camera_name: 'Camera 02 - Concourse Exit',
-      location_name: 'Metro Terminal South',
-      latitude: 13.0850,
-      longitude: 80.2740,
+      camera_name: 'Camera 02',
+      location_name: '',
+      latitude: null,
+      longitude: null,
       video_file: null,
       video_preview_url: null
     }
@@ -212,12 +212,18 @@ export const SearchCrowdPage: React.FC = () => {
 
     const metaPayload: any[] = [];
 
-    validFeeds.forEach((feed) => {
+    validFeeds.forEach((feed, idx) => {
       if (feed.video_file) {
         formData.append('videos', feed.video_file);
+        const userCamName = (feed.camera_name || '').trim();
+        const userLocName = (feed.location_name || '').trim();
+        let finalCamName = userCamName || `Camera 0${idx + 1}`;
+        if (userLocName && !finalCamName.toLowerCase().includes(userLocName.toLowerCase())) {
+          finalCamName = `${finalCamName} - ${userLocName}`;
+        }
         metaPayload.push({
-          camera_name: feed.camera_name,
-          location_name: feed.location_name,
+          camera_name: finalCamName,
+          location_name: userLocName,
           latitude: feed.latitude,
           longitude: feed.longitude
         });
@@ -329,34 +335,36 @@ export const SearchCrowdPage: React.FC = () => {
                   key={feed.id}
                   className="p-4 bg-surface-50 border border-surface-400 rounded-xl space-y-4 relative group shadow-xs"
                 >
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between border-b border-surface-300 pb-2.5">
                     <div className="flex items-center gap-2">
-                      <Badge variant="brand">Camera 0{idx + 1}</Badge>
-                      <input
-                        type="text"
-                        value={feed.camera_name}
-                        onChange={(e) => handleUpdateCameraFeed(feed.id, 'camera_name', e.target.value)}
-                        className="bg-transparent text-xs font-extrabold text-surface-950 focus:outline-none focus:border-b border-brand-500"
-                        placeholder="Camera Identifier Name"
-                        required
-                      />
+                      <Badge variant="brand">Camera Feed #{idx + 1}</Badge>
+                      <span className="text-xs font-bold text-surface-900 font-mono">
+                        {feed.camera_name || `Camera 0${idx + 1}`}
+                      </span>
                     </div>
                     {cameraFeeds.length > 1 && (
                       <button
                         type="button"
                         onClick={() => handleRemoveCameraFeed(feed.id)}
-                        className="p-1 text-surface-700 hover:text-red-700 transition-colors font-bold"
+                        className="px-2 py-1 text-xs text-red-700 hover:text-red-900 hover:bg-red-50 rounded-lg transition-colors font-bold flex items-center gap-1"
                         title="Remove camera feed"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-3.5 h-3.5" /> Remove Feed
                       </button>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <Input
+                      label="Camera Name / Identifier"
+                      placeholder={`e.g. Camera 0${idx + 1}, East Lobby`}
+                      value={feed.camera_name}
+                      onChange={(e) => handleUpdateCameraFeed(feed.id, 'camera_name', e.target.value)}
+                      required
+                    />
                     <Input
                       label="Location / Landmark Name"
-                      placeholder="e.g. North Gate Concourse"
+                      placeholder="e.g. Main Entrance Gate"
                       value={feed.location_name || ''}
                       onChange={(e) => handleUpdateCameraFeed(feed.id, 'location_name', e.target.value)}
                       icon={<MapPin className="w-3.5 h-3.5" />}
