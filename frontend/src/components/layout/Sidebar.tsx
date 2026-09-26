@@ -22,7 +22,6 @@ const navSections = [
     title: 'COMMAND CENTER',
     items: [
       { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-      { name: 'Operations Center', path: '/operations', icon: Activity },
       { name: 'Cases', path: '/cases', icon: FolderKanban },
     ],
   },

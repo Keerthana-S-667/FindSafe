@@ -11,7 +11,6 @@ interface TopBarProps {
 
 const pageTitles: Record<string, { title: string; category: string }> = {
   '/dashboard': { title: 'Command Center', category: 'Overview' },
-  '/operations': { title: 'Operations Center', category: 'Overview' },
   '/cases': { title: 'Missing Person Cases', category: 'Case Management' },
   '/cases/new': { title: 'Create Missing Person Case', category: 'Case Management' },
   '/search/crowd': { title: 'Search the Crowd', category: 'Search' },

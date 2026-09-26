@@ -290,10 +290,23 @@ export const DashboardPage: React.FC = () => {
 
             {spotlightCase ? (
               <div className="bg-surface-50 border border-surface-400 rounded-xl p-4 space-y-4">
-                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-surface-300 pb-3">
-                  <div>
-                    <span className="text-xs font-mono font-bold text-brand-700 block">{spotlightCase.case_id}</span>
-                    <h3 className="text-lg font-extrabold text-surface-950">{spotlightCase.reference_name}</h3>
+                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-surface-300 pb-3">
+                  <div className="flex items-center gap-3">
+                    {spotlightCase.reference_image_url ? (
+                      <img
+                        src={spotlightCase.reference_image_url}
+                        alt={spotlightCase.full_name || spotlightCase.case_title}
+                        className="w-12 h-12 rounded-xl object-cover border border-surface-400 shrink-0"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/30 flex items-center justify-center text-brand-700 font-black text-base shrink-0">
+                        {(spotlightCase.full_name || spotlightCase.case_title || 'MP')[0].toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <span className="text-xs font-mono font-bold text-brand-700 block">{spotlightCase.case_id || 'ACTIVE CASE'}</span>
+                      <h3 className="text-lg font-extrabold text-surface-950">{spotlightCase.full_name || spotlightCase.case_title}</h3>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className={`px-2.5 py-1 text-xs font-bold rounded-md uppercase border ${getPriorityBadgeColor(spotlightCase.priority)}`}>
@@ -307,20 +320,22 @@ export const DashboardPage: React.FC = () => {
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
                   <div className="bg-surface-200 p-2.5 rounded-lg border border-surface-300">
-                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Active Searches</span>
-                    <span className="text-base font-extrabold text-sky-400 font-mono">{spotlightCase.active_searches}</span>
+                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Candidate Sightings</span>
+                    <span className="text-base font-extrabold text-sky-700 font-mono">{spotlightCase.candidate_count ?? 0}</span>
                   </div>
                   <div className="bg-surface-200 p-2.5 rounded-lg border border-surface-300">
-                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Pending Reviews</span>
-                    <span className="text-base font-extrabold text-amber-700 font-mono">{spotlightCase.pending_reviews}</span>
+                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Age & Gender</span>
+                    <span className="text-xs font-extrabold text-surface-950 truncate block">
+                      {spotlightCase.age ? `${spotlightCase.age} yrs` : 'N/A'}{spotlightCase.gender ? `, ${spotlightCase.gender}` : ''}
+                    </span>
                   </div>
                   <div className="bg-surface-200 p-2.5 rounded-lg border border-surface-300">
-                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Assigned Investigator</span>
-                    <span className="text-xs font-extrabold text-surface-950 truncate block">{spotlightCase.assigned_investigator}</span>
+                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Assigned Unit</span>
+                    <span className="text-xs font-extrabold text-surface-950 truncate block">Public Safety Unit</span>
                   </div>
                   <div className="bg-surface-200 p-2.5 rounded-lg border border-surface-300">
-                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Latest Sighting</span>
-                    <span className="text-xs font-semibold text-surface-900 truncate block">{spotlightCase.last_seen_location || 'Not Specified'}</span>
+                    <span className="text-[10px] text-surface-700 block font-extrabold uppercase">Last Seen Location</span>
+                    <span className="text-xs font-semibold text-surface-900 truncate block">{spotlightCase.last_seen_location || 'Reported Missing'}</span>
                   </div>
                 </div>
               </div>
@@ -335,11 +350,11 @@ export const DashboardPage: React.FC = () => {
               <SectionHeader title="Case Status Distribution" subtitle="Missing person case file workflow state breakdown" />
               <div className="space-y-3 mt-4 text-xs">
                 {[
-                  { label: 'Open', count: caseStatusDist.open, color: 'bg-emerald-500' },
-                  { label: 'Under Review', count: caseStatusDist.under_review, color: 'bg-amber-500' },
-                  { label: 'Resolved', count: caseStatusDist.resolved, color: 'bg-sky-500' },
-                  { label: 'Closed', count: caseStatusDist.closed, color: 'bg-surface-600' },
-                  { label: 'Archived', count: caseStatusDist.archived, color: 'bg-surface-700' },
+                  { label: 'Active', count: caseStatusDist.active ?? caseStatusDist.open ?? 0, color: 'bg-emerald-500' },
+                  { label: 'Under Review', count: caseStatusDist.under_review ?? 0, color: 'bg-amber-500' },
+                  { label: 'Resolved', count: caseStatusDist.resolved ?? 0, color: 'bg-sky-500' },
+                  { label: 'Closed', count: caseStatusDist.closed ?? 0, color: 'bg-surface-600' },
+                  { label: 'Archived', count: caseStatusDist.archived ?? 0, color: 'bg-surface-700' },
                 ].map((item) => (
                   <div key={item.label} className="space-y-1">
                     <div className="flex justify-between font-semibold text-surface-800">
@@ -363,25 +378,25 @@ export const DashboardPage: React.FC = () => {
                 <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl space-y-1">
                   <span className="text-[10px] text-red-800 font-extrabold uppercase block">Critical</span>
                   <span className="text-xl font-extrabold text-red-700 font-mono">
-                    {summary?.cases?.filter(c => c.priority?.toLowerCase() === 'critical').length || 0}
+                    {summary?.case_priority_distribution?.critical ?? summary?.cases?.filter(c => c.priority?.toLowerCase() === 'critical').length ?? 0}
                   </span>
                 </div>
                 <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1">
                   <span className="text-[10px] text-amber-800 font-extrabold uppercase block">High</span>
                   <span className="text-xl font-extrabold text-amber-700 font-mono">
-                    {summary?.cases?.filter(c => c.priority?.toLowerCase() === 'high').length || 0}
+                    {summary?.case_priority_distribution?.high ?? summary?.cases?.filter(c => c.priority?.toLowerCase() === 'high').length ?? 0}
                   </span>
                 </div>
                 <div className="p-3 bg-sky-500/10 border border-sky-500/30 rounded-xl space-y-1">
                   <span className="text-[10px] text-sky-800 font-extrabold uppercase block">Medium</span>
                   <span className="text-xl font-extrabold text-sky-700 font-mono">
-                    {summary?.cases?.filter(c => c.priority?.toLowerCase() === 'medium').length || 0}
+                    {summary?.case_priority_distribution?.medium ?? summary?.cases?.filter(c => c.priority?.toLowerCase() === 'medium').length ?? 0}
                   </span>
                 </div>
                 <div className="p-3 bg-surface-200 border border-surface-300 rounded-xl space-y-1">
                   <span className="text-[10px] text-surface-700 font-extrabold uppercase block">Low</span>
                   <span className="text-xl font-extrabold text-surface-950 font-mono">
-                    {summary?.cases?.filter(c => c.priority?.toLowerCase() === 'low').length || 0}
+                    {summary?.case_priority_distribution?.low ?? summary?.cases?.filter(c => c.priority?.toLowerCase() === 'low').length ?? 0}
                   </span>
                 </div>
               </div>
@@ -395,9 +410,9 @@ export const DashboardPage: React.FC = () => {
                 <h3 className="text-sm font-extrabold text-surface-950 uppercase tracking-wider">SEARCH STATUS BREAKDOWN</h3>
                 <p className="text-xs text-surface-700">Execution states across all CCTV and record sessions</p>
               </div>
-              <Link to="/operations">
+              <Link to="/search/crowd">
                 <Button size="sm" variant="secondary" icon={<ArrowUpRight className="w-3.5 h-3.5" />}>
-                  Search Operations Center
+                  Search the Crowd
                 </Button>
               </Link>
             </div>
@@ -434,7 +449,7 @@ export const DashboardPage: React.FC = () => {
                 </div>
               </div>
               <span className="font-mono text-brand-700 font-extrabold">
-                {summary?.summary_metrics?.active_searches ? `${summary.summary_metrics.active_searches} Sessions Executed` : 'Not enough search history for chart'}
+                {summary?.summary_metrics?.active_searches ? `${summary.summary_metrics.active_searches} Active Searches` : `${searchStatusDist.completed} Completed Searches`}
               </span>
             </div>
           </Card>
@@ -472,11 +487,9 @@ export const DashboardPage: React.FC = () => {
             <SectionHeader title="Evidence Source Breakdown" subtitle="Distribution by institutional source type" />
             <div className="space-y-2.5 mt-3 text-xs">
               {[
-                { label: 'CCTV Video Feeds', count: sourceDist.camera, color: 'text-brand-700' },
-                { label: 'Police Records', count: sourceDist.police, color: 'text-sky-700' },
-                { label: 'Hospital Admissions', count: sourceDist.hospital, color: 'text-emerald-700' },
-                { label: 'Shelter Records', count: sourceDist.shelter, color: 'text-amber-800' },
-                { label: 'Public Sightings', count: sourceDist.public_report, color: 'text-purple-800' },
+                { label: 'CCTV Video Feeds', count: sourceDist.camera ?? evidenceOverview.camera_evidence, color: 'text-brand-700' },
+                { label: 'Hospital & Police Records', count: sourceDist.records ?? evidenceOverview.record_evidence, color: 'text-sky-700' },
+                { label: 'Investigation Reports', count: sourceDist.reports ?? 0, color: 'text-emerald-700' },
               ].map((s) => (
                 <div key={s.label} className="p-2.5 bg-surface-50 border border-surface-400 rounded-lg flex justify-between items-center">
                   <span className="text-surface-950 font-semibold">{s.label}</span>
@@ -502,12 +515,12 @@ export const DashboardPage: React.FC = () => {
                   Start Crowd Search (CCTV)
                 </Button>
               </Link>
-              <Link to="/search-records" className="block">
+              <Link to="/search/records" className="block">
                 <Button variant="secondary" className="w-full justify-start text-xs" icon={<FileText className="w-4 h-4" />}>
                   Search Institutional Records
                 </Button>
               </Link>
-              <Link to="/search-everywhere" className="block">
+              <Link to="/search/everywhere" className="block">
                 <Button variant="secondary" className="w-full justify-start text-xs" icon={<Globe className="w-4 h-4" />}>
                   Search Everywhere
                 </Button>
@@ -561,8 +574,7 @@ export const DashboardPage: React.FC = () => {
                   <thead>
                     <tr className="border-b border-surface-300 text-surface-700 font-bold">
                       <th className="py-2.5">Case / Ref</th>
-                      <th className="py-2.5">Candidate / Record</th>
-                      <th className="py-2.5">Type</th>
+                      <th className="py-2.5">Candidate / Evidence</th>
                       <th className="py-2.5">Evidence Score</th>
                       <th className="py-2.5">Status</th>
                       <th className="py-2.5 text-right">Action</th>
@@ -571,9 +583,8 @@ export const DashboardPage: React.FC = () => {
                   <tbody className="divide-y divide-surface-300 text-surface-950 font-medium">
                     {sortedReviews.slice(0, 5).map((rev) => (
                       <tr key={rev.id} className="hover:bg-surface-200/60 transition-all">
-                        <td className="py-3 font-extrabold text-brand-700">{rev.case_name || 'MP Case'}</td>
-                        <td className="py-3 font-mono">{rev.candidate_id}</td>
-                        <td className="py-3 uppercase text-[10px] text-surface-700 font-extrabold">{rev.evidence_type}</td>
+                        <td className="py-3 font-extrabold text-brand-700">{rev.case_title || rev.case_name || 'Case File'}</td>
+                        <td className="py-3 font-mono">Candidate Group #{rev.id?.slice(0, 8) || '01'}</td>
                         <td className="py-3 font-mono font-extrabold text-sky-800">
                           <span title="Combined evidence from configured visual, attribute, time, location and cross-source factors.">
                             Evidence Score: {rev.evidence_score}/100
@@ -581,11 +592,11 @@ export const DashboardPage: React.FC = () => {
                         </td>
                         <td className="py-3">
                           <span className="px-2 py-0.5 text-[10px] font-extrabold rounded uppercase bg-amber-500/15 text-amber-800 border border-amber-500/30">
-                            {rev.status}
+                            {rev.status || 'Potential Match'}
                           </span>
                         </td>
                         <td className="py-3 text-right">
-                          <Link to={`/search-records`}>
+                          <Link to={rev.case_id ? `/cases/${rev.case_id}/investigation` : `/search/crowd`}>
                             <Button size="sm" variant="secondary" icon={<Eye className="w-3.5 h-3.5" />}>
                               Review
                             </Button>

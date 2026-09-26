@@ -16,7 +16,6 @@ const ProcessingPage = lazy(() => import('../pages/ProcessingPage').then(m => ({
 const SearchRecordsPage = lazy(() => import('../pages/SearchRecordsPage').then(m => ({ default: m.SearchRecordsPage })));
 const SearchEverywherePage = lazy(() => import('../pages/SearchEverywherePage').then(m => ({ default: m.SearchEverywherePage })));
 const ReportsPage = lazy(() => import('../pages/ReportsPage').then(m => ({ default: m.ReportsPage })));
-const OperationsCenterPage = lazy(() => import('../pages/OperationsCenterPage').then(m => ({ default: m.OperationsCenterPage })));
 const InvestigationReplayPage = lazy(() => import('../pages/InvestigationReplayPage').then(m => ({ default: m.InvestigationReplayPage })));
 const DecisionBoardPage = lazy(() => import('../pages/DecisionBoardPage').then(m => ({ default: m.DecisionBoardPage })));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
@@ -43,8 +42,8 @@ export const AppRoutes: React.FC = () => {
         >
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<DashboardPage />} />
-          <Route path="operations" element={<OperationsCenterPage />} />
-          <Route path="command-center/operations" element={<OperationsCenterPage />} />
+          <Route path="operations" element={<Navigate to="/dashboard" replace />} />
+          <Route path="command-center/operations" element={<Navigate to="/dashboard" replace />} />
           <Route path="search-sessions/:sessionId/replay" element={<InvestigationReplayPage />} />
           <Route path="cases/:caseId/replay" element={<InvestigationReplayPage />} />
           <Route path="cases/:caseId/decision-board" element={<DecisionBoardPage />} />
@@ -65,8 +64,8 @@ export const AppRoutes: React.FC = () => {
           <Route path="reports" element={<ReportsPage />} />
 
           {/* Legacy redirects */}
-          <Route path="candidates/*" element={<Navigate to="/operations" replace />} />
-          <Route path="map" element={<Navigate to="/operations" replace />} />
+          <Route path="candidates/*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="map" element={<Navigate to="/dashboard" replace />} />
           <Route path="demo*" element={<Navigate to="/dashboard" replace />} />
           <Route path="scenario-center" element={<Navigate to="/dashboard" replace />} />
           <Route path="settings" element={<Navigate to="/dashboard" replace />} />
