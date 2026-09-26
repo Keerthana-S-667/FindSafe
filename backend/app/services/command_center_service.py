@@ -26,7 +26,7 @@ class CommandCenterService:
         try:
             # 1. Live Missing Person Cases
             cases_res = supabase.table("missing_persons") \
-                .select("id, case_id, full_name, case_title, status, priority, reference_image_url, reference_image_path, last_seen_location, last_seen_date, age, gender, created_at, updated_at") \
+                .select("id, case_id, reference_name, status, priority, reference_image_url, reference_image_path, last_seen_location, age_range, created_at, updated_at") \
                 .order("updated_at", desc=True) \
                 .execute()
             all_cases = cases_res.data or []
@@ -79,14 +79,14 @@ class CommandCenterService:
             # 4. Live Records & Reports
             records_count = 0
             try:
-                rec_res = supabase.table("found_person_records").select("id", count="exact").execute()
+                rec_res = supabase.table("found_person_records").select("id").execute()
                 records_count = len(rec_res.data or [])
             except Exception:
                 pass
 
             reports_count = 0
             try:
-                rep_res = supabase.table("investigation_reports").select("id", count="exact").execute()
+                rep_res = supabase.table("investigation_reports").select("id").execute()
                 reports_count = len(rep_res.data or [])
             except Exception:
                 pass
@@ -108,16 +108,18 @@ class CommandCenterService:
                 spotlight_case = {
                     "id": top_case.get("id"),
                     "case_id": top_case.get("case_id") or top_case.get("id"),
-                    "case_title": top_case.get("case_title") or top_case.get("full_name") or "Missing Person Case",
-                    "full_name": top_case.get("full_name") or top_case.get("case_title") or "Unknown Subject",
+                    "case_title": top_case.get("reference_name") or "Missing Person Case",
+                    "full_name": top_case.get("reference_name") or "Missing Person Case",
+                    "reference_name": top_case.get("reference_name") or "Missing Person Case",
                     "status": top_case.get("status") or "active",
-                    "priority": top_case.get("priority") or "high",
-                    "age": top_case.get("age"),
-                    "gender": top_case.get("gender"),
+                    "priority": top_case.get("priority") or "medium",
+                    "age_range": top_case.get("age_range"),
                     "last_seen_location": top_case.get("last_seen_location") or "Reported Missing",
-                    "last_seen_date": top_case.get("last_seen_date") or top_case.get("created_at"),
                     "reference_image_url": top_case.get("reference_image_url"),
                     "candidate_count": candidate_groups_count,
+                    "active_searches": active_searches,
+                    "pending_reviews": pending_reviews,
+                    "assigned_investigator": "Lead Investigator",
                     "updated_at": top_case.get("updated_at") or top_case.get("created_at")
                 }
 
@@ -130,8 +132,11 @@ class CommandCenterService:
                 review_queue.append({
                     "id": grp.get("id"),
                     "case_id": cid,
-                    "case_title": c_item.get("case_title") or c_item.get("full_name") or "Investigation Review",
+                    "candidate_id": grp.get("id")[:8] if grp.get("id") else "CG-01",
+                    "case_name": c_item.get("reference_name") or "Case File",
+                    "case_title": c_item.get("reference_name") or "Investigation Review",
                     "case_priority": c_item.get("priority") or "high",
+                    "evidence_type": "Camera Track",
                     "evidence_score": float(grp.get("overall_score") or 0.0),
                     "evidence_level": grp.get("evidence_level") or "moderate",
                     "status": grp.get("status") or "potential_match",
@@ -145,11 +150,13 @@ class CommandCenterService:
                 c_item = case_map.get(cid, {})
                 activity_feed.append({
                     "id": f"act-search-{s.get('id')}",
+                    "type": "search",
                     "action": f"{s.get('search_type', 'Crowd').capitalize()} Search {s.get('status', 'Completed').capitalize()}",
+                    "description": f"{s.get('search_type', 'Crowd').capitalize()} CCTV Search ({s.get('status')}) for {c_item.get('reference_name') or 'Case File'}",
                     "performed_by": "System AI Engine",
                     "timestamp": s.get("updated_at") or s.get("created_at"),
                     "details": {
-                        "label": f"Session for {c_item.get('full_name') or 'Case File'}",
+                        "label": f"Session for {c_item.get('reference_name') or 'Case File'}",
                         "status": s.get("status")
                     }
                 })
@@ -157,11 +164,13 @@ class CommandCenterService:
             for c in all_cases[:3]:
                 activity_feed.append({
                     "id": f"act-case-{c.get('id')}",
+                    "type": "case",
                     "action": "Case Registered / Updated",
+                    "description": f"Case File {c.get('case_id') or ''} ({c.get('reference_name') or 'Case'}) active",
                     "performed_by": "Authority Operator",
                     "timestamp": c.get("updated_at") or c.get("created_at"),
                     "details": {
-                        "label": f"{c.get('full_name') or c.get('case_title')} ({c.get('priority', 'Normal')})",
+                        "label": f"{c.get('reference_name')} ({c.get('priority', 'Medium')})",
                         "status": c.get("status")
                     }
                 })
