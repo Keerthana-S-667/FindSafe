@@ -209,45 +209,45 @@ export const CaseDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Case Info Card */}
           <Card className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between border-b border-surface-700/60 pb-3">
-              <h3 className="text-sm font-semibold text-surface-50">Subject Information</h3>
+            <div className="flex items-center justify-between border-b border-surface-300 pb-3">
+              <h3 className="text-sm font-extrabold text-surface-950">Subject Information</h3>
               <StatusBadge status={caseData.status} />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Subject Full Name</span>
-                <span className="text-surface-50 font-semibold text-sm">{subjectName}</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Subject Full Name</span>
+                <span className="text-surface-950 font-black text-sm">{subjectName}</span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Case Identifier</span>
-                <span className="font-mono text-brand-400 font-semibold">{displayCaseId}</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Case Identifier</span>
+                <span className="font-mono text-brand-700 font-black text-sm">{displayCaseId}</span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Age Range</span>
-                <span className="text-surface-50">{caseData.age_range || caseData.age || 'Not specified'}</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Age Range</span>
+                <span className="text-surface-950 font-bold">{caseData.age_range || caseData.age || 'Not specified'}</span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Search Radius</span>
-                <span className="text-surface-50">{caseData.search_radius_km || 5} km</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Search Radius</span>
+                <span className="text-surface-950 font-bold">{caseData.search_radius_km || 5} km</span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Upper Clothing</span>
-                <span className="text-surface-50">{caseData.upper_clothing || 'Not specified'}</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Upper Clothing</span>
+                <span className="text-surface-950 font-bold">{caseData.upper_clothing || 'Not specified'}</span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Lower Clothing</span>
-                <span className="text-surface-50">{caseData.lower_clothing || 'Not specified'}</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Lower Clothing</span>
+                <span className="text-surface-950 font-bold">{caseData.lower_clothing || 'Not specified'}</span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Bag / Accessories</span>
-                <span className="text-surface-50">
+                <span className="text-surface-700 font-bold block mb-0.5">Bag / Accessories</span>
+                <span className="text-surface-950 font-bold">
                   {[caseData.bag, caseData.accessories].filter(Boolean).join(', ') || 'Not specified'}
                 </span>
               </div>
               <div>
-                <span className="text-surface-200/50 block mb-0.5">Date Created</span>
-                <span className="text-surface-200/80 font-mono">{formatDate(caseData.created_at)}</span>
+                <span className="text-surface-700 font-bold block mb-0.5">Date Created</span>
+                <span className="text-surface-900 font-mono font-bold">{formatDate(caseData.created_at)}</span>
               </div>
             </div>
 
