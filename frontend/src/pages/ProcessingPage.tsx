@@ -101,7 +101,14 @@ export const ProcessingPage: React.FC = () => {
         }
       }
     } catch (err: any) {
-      setError(err.message || 'Failed to load search session.');
+      console.warn('Background search session update notice:', err);
+      // Never crash the view if we already have session data in state
+      setSession((prev) => {
+        if (!prev) {
+          setError(err.message || 'Failed to retrieve search session.');
+        }
+        return prev;
+      });
       setLoading(false);
     }
   };
@@ -202,28 +209,37 @@ export const ProcessingPage: React.FC = () => {
   const currentStageIndex = getStageIndex(session?.processing_stage, session?.status);
   const activeFrame = frames[activeFrameIndex] || null;
 
-  if (loading && !session) {
+  if (loading || !session) {
     return (
       <PageContainer>
-        <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-          <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
-          <p className="text-surface-700 font-bold text-sm">Loading multi-camera AI search session...</p>
-        </div>
-      </PageContainer>
-    );
-  }
-
-  if (error || !session) {
-    return (
-      <PageContainer>
-        <div className="p-6 bg-surface-50 border border-red-300 rounded-xl text-center space-y-4 max-w-lg mx-auto my-12 shadow-xs">
-          <AlertCircle className="w-10 h-10 text-red-600 mx-auto" />
-          <h2 className="text-lg font-bold text-surface-950">Search Session Error</h2>
-          <p className="text-xs text-red-700 font-medium">{error || 'Session not found.'}</p>
-          <Button variant="secondary" onClick={() => navigate('/search/crowd')}>
-            Return to Search The Crowd
-          </Button>
-        </div>
+        {error ? (
+          <div className="p-6 bg-surface-50 border border-brand-300 rounded-xl text-center space-y-4 max-w-lg mx-auto my-12 shadow-xs">
+            <AlertCircle className="w-10 h-10 text-brand-600 mx-auto" />
+            <h2 className="text-lg font-bold text-surface-950">Search Session Notice</h2>
+            <p className="text-xs text-surface-700 font-medium">{error || 'Session is being retrieved.'}</p>
+            <div className="flex justify-center gap-3">
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  setError(null);
+                  setLoading(true);
+                  if (sessionId) fetchSessionAndCandidateGroups(sessionId);
+                }}
+              >
+                Retry Connection
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => navigate('/search/crowd')}>
+                Back to Search The Crowd
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+            <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+            <p className="text-surface-700 font-bold text-sm">Loading multi-camera AI search session...</p>
+          </div>
+        )}
       </PageContainer>
     );
   }
