@@ -28,7 +28,8 @@ import {
   Sliders,
   Cpu,
   Scan,
-  Crosshair
+  Crosshair,
+  Camera
 } from 'lucide-react';
 
 import { PageContainer } from '../components/layout/PageContainer';
@@ -680,16 +681,35 @@ export const ProcessingPage: React.FC = () => {
                           </div>
 
                           {/* Representative Person Crop */}
-                          <div className="aspect-square max-h-40 rounded-lg bg-surface-50 border border-surface-300 overflow-hidden flex items-center justify-center shadow-xs">
+                          <div className="aspect-square max-h-40 rounded-lg bg-surface-100 border border-surface-300 overflow-hidden flex items-center justify-center shadow-xs">
                             {sighting.signed_crop_url ? (
                               <img
                                 src={sighting.signed_crop_url}
                                 alt={sighting.camera_name}
+                                loading="lazy"
+                                onError={(e) => {
+                                  // Fallback to stylized CCTV frame icon if URL fails
+                                  e.currentTarget.style.display = 'none';
+                                  if (e.currentTarget.nextElementSibling) {
+                                    (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                                  }
+                                }}
                                 className="w-full h-full object-cover"
                               />
-                            ) : (
-                              <Film className="w-6 h-6 text-surface-600" />
-                            )}
+                            ) : null}
+                            <div
+                              className={`w-full h-full flex flex-col items-center justify-center p-3 text-center bg-surface-100 ${
+                                sighting.signed_crop_url ? 'hidden' : 'flex'
+                              }`}
+                            >
+                              <Camera className="w-6 h-6 text-brand-600 mb-1" />
+                              <span className="text-[10px] font-mono font-bold text-surface-700">
+                                {sighting.camera_name}
+                              </span>
+                              <span className="text-[9px] text-surface-500">
+                                Sighting #{sighting.sequence_order}
+                              </span>
+                            </div>
                           </div>
 
                           <div className="text-[11px] text-surface-800 space-y-1 font-mono pt-1 font-medium border-t border-surface-200">

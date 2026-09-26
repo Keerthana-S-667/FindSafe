@@ -62,6 +62,14 @@ export const searchService = {
         if (caseId && caseId !== 'ALL') {
           query = query.eq('case_id', caseId);
         }
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+        const formatCropUrl = (path: string | null | undefined) => {
+          if (!path) return null;
+          if (path.startsWith('http')) return path;
+          if (supabaseUrl) return `${supabaseUrl}/storage/v1/object/public/evidence-frames/${path}`;
+          return path;
+        };
+
         const { data } = await query;
         return (data || []).map((g: any) => ({
           ...g,
@@ -75,7 +83,7 @@ export const searchService = {
             transition_time_seconds: t.transition_time_seconds || 0,
             transition_distance_meters: t.transition_distance_meters || 0,
             transition_score: t.transition_score || 0,
-            signed_crop_url: t.person_tracks?.best_crop_path || null,
+            signed_crop_url: formatCropUrl(t.person_tracks?.best_crop_path),
           })),
         })) as CandidateGroup[];
       }
@@ -92,6 +100,14 @@ export const searchService = {
       return response.data || [];
     } catch (err) {
       if (isSupabaseConfigured && supabase) {
+        const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
+        const formatCropUrl = (path: string | null | undefined) => {
+          if (!path) return null;
+          if (path.startsWith('http')) return path;
+          if (supabaseUrl) return `${supabaseUrl}/storage/v1/object/public/evidence-frames/${path}`;
+          return path;
+        };
+
         const { data } = await supabase
           .from('candidate_groups')
           .select('*, candidate_group_tracks(*, person_tracks(*))')
@@ -109,7 +125,7 @@ export const searchService = {
             transition_time_seconds: t.transition_time_seconds || 0,
             transition_distance_meters: t.transition_distance_meters || 0,
             transition_score: t.transition_score || 0,
-            signed_crop_url: t.person_tracks?.best_crop_path || null,
+            signed_crop_url: formatCropUrl(t.person_tracks?.best_crop_path),
           })),
         })) as CandidateGroup[];
       }

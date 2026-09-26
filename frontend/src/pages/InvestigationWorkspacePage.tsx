@@ -464,13 +464,32 @@ export const InvestigationWorkspacePage: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-3 overflow-x-auto">
                     {group.sightings.map((s, idx) => (
-                      <div key={idx} className="w-24 h-24 bg-surface-200 border border-surface-300 rounded-lg overflow-hidden relative shrink-0">
+                      <div key={idx} className="w-24 h-24 bg-surface-200 border border-surface-300 rounded-lg overflow-hidden relative shrink-0 flex items-center justify-center">
                         {s.signed_crop_url ? (
-                          <img src={s.signed_crop_url} alt={s.camera_name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-[10px] text-surface-700 font-medium">Crop</div>
-                        )}
-                        <span className="absolute bottom-0 inset-x-0 bg-brand-900/80 text-[9px] text-amber-50 text-center truncate py-0.5 font-bold">{s.camera_name}</span>
+                          <img
+                            src={s.signed_crop_url}
+                            alt={s.camera_name}
+                            loading="lazy"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none';
+                              if (e.currentTarget.nextElementSibling) {
+                                (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                              }
+                            }}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : null}
+                        <div
+                          className={`w-full h-full flex flex-col items-center justify-center text-[10px] text-surface-700 font-medium ${
+                            s.signed_crop_url ? 'hidden' : 'flex'
+                          }`}
+                        >
+                          <Camera className="w-5 h-5 text-brand-600 mb-0.5" />
+                          <span className="text-[9px] font-bold">CCTV</span>
+                        </div>
+                        <span className="absolute bottom-0 inset-x-0 bg-brand-900/80 text-[9px] text-amber-50 text-center truncate py-0.5 font-bold">
+                          {s.camera_name}
+                        </span>
                       </div>
                     ))}
                   </div>
