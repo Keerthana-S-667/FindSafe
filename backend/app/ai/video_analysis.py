@@ -211,26 +211,52 @@ class VideoAIOrchestrator:
     def _load_reference_data(self, supabase: Any, case_id: str) -> Tuple[Optional[Any], Optional[List[float]], Dict[str, Any]]:
         """Loads reference photograph & case attribute descriptors for missing person case."""
         try:
-            res = supabase.table("missing_persons").select("*").eq("id", case_id).execute()
+            admin_sb = get_supabase_admin_client() or supabase
+            res = admin_sb.table("missing_persons").select("*").eq("id", case_id).execute()
             if not res.data:
-                res = supabase.table("missing_persons").select("*").eq("case_id", case_id).execute()
+                res = admin_sb.table("missing_persons").select("*").eq("case_id", case_id).execute()
 
             if not res.data:
                 return None, None, {}
 
             case_item = res.data[0]
             ref_url = case_item.get("reference_image_url")
+            ref_path = case_item.get("reference_image_path")
             ref_img = None
             ref_emb = None
 
-            if ref_url:
-                import httpx
-                resp = httpx.get(ref_url, timeout=10.0)
-                if resp.status_code == 200:
-                    arr = np.frombuffer(resp.content, np.uint8)
-                    ref_img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-                    if ref_img is not None:
-                        ref_emb = ReIDService.extract_appearance_embedding(ref_img)
+            # Attempt 1: Direct Supabase Storage download if storage path exists
+            if ref_path and admin_sb:
+                for bucket_name in ["missing-person-photos", "case-photos", "findsafe-media"]:
+                    try:
+                        file_bytes = admin_sb.storage.from_(bucket_name).download(ref_path)
+                        if file_bytes:
+                            arr = np.frombuffer(file_bytes, np.uint8)
+                            decoded = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                            if decoded is not None and decoded.size > 0:
+                                ref_img = decoded
+                                logger.info(f"Successfully loaded reference photo from storage bucket '{bucket_name}': {ref_path}")
+                                break
+                    except Exception:
+                        pass
+
+            # Attempt 2: Download from public HTTP URL
+            if ref_img is None and ref_url and ref_url.startswith("http"):
+                try:
+                    import httpx
+                    resp = httpx.get(ref_url, timeout=12.0)
+                    if resp.status_code == 200:
+                        arr = np.frombuffer(resp.content, np.uint8)
+                        decoded = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+                        if decoded is not None and decoded.size > 0:
+                            ref_img = decoded
+                            logger.info(f"Successfully loaded reference photo from HTTP URL: {ref_url}")
+                except Exception as url_err:
+                    logger.warning(f"Could not download reference image from URL {ref_url}: {url_err}")
+
+            if ref_img is not None:
+                ref_emb = ReIDService.extract_appearance_embedding(ref_img)
+                logger.info(f"Extracted 512-dim visual appearance embedding for case reference photo: {case_id}")
 
             ref_profile = AttributeService.extract_reference_profile(case_item, ref_img)
             return ref_img, ref_emb, ref_profile

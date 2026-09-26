@@ -87,8 +87,8 @@ class CrossCameraMatchingService:
                     candidate_tracks.append(trk_copy)
 
         if not candidate_tracks and all_detected_tracks:
-            # Rank all detected tracks by combined visual + attribute score so candidates are always surfaced
-            all_detected_tracks.sort(key=lambda t: (t.get("visual_similarity", 0) * 0.6 + t.get("attribute_score", 0) * 0.4), reverse=True)
+            # Rank all detected tracks by reference photograph visual appearance first (85%) + attribute support (15%)
+            all_detected_tracks.sort(key=lambda t: (t.get("visual_similarity", 0) * 0.85 + t.get("attribute_score", 0) * 0.15), reverse=True)
             candidate_tracks = all_detected_tracks[:8]
 
         if not candidate_tracks:
@@ -216,13 +216,13 @@ class CrossCameraMatchingService:
                 "attribute_score": round(avg_attr_score * 100.0, 1),
                 "time_score": round(avg_spatial_score * 100.0, 1),
                 "location_score": round(avg_spatial_score * 100.0, 1),
-                "cross_camera_score": round(cross_cam_score * 100.0, 1),
                 "explanation_json": explanation,
                 "sequence": sequence_transitions,
                 "tracks": group_members
             })
 
-        candidate_groups.sort(key=lambda g: g["overall_score"], reverse=True)
+        # Rank candidate groups primarily by visual reference photograph match first (75%), with overall evidence corroboration (25%)
+        candidate_groups.sort(key=lambda g: (g["visual_score"] * 0.75 + g["overall_score"] * 0.25), reverse=True)
         return candidate_groups
 
 

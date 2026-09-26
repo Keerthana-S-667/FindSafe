@@ -32,12 +32,13 @@ class Settings(BaseSettings):
     VISUAL_SIMILARITY_THRESHOLD: float = 0.45
     CROSS_CAMERA_SIMILARITY_THRESHOLD: float = 0.50
     
-    # Phase 6 Multi-Factor Evidence Fusion Weights (Sum = 1.0)
-    VISUAL_WEIGHT: float = 0.40
-    ATTRIBUTE_WEIGHT: float = 0.25
-    TIME_WEIGHT: float = 0.15
-    LOCATION_WEIGHT: float = 0.10
-    CROSS_CAMERA_WEIGHT: float = 0.10
+    # Multi-Factor Evidence Fusion Weights (Sum = 1.0)
+    # Visual Reference Photo / Facial & Body Appearance is prioritized first (65%)
+    VISUAL_WEIGHT: float = 0.65
+    ATTRIBUTE_WEIGHT: float = 0.15
+    TIME_WEIGHT: float = 0.10
+    LOCATION_WEIGHT: float = 0.05
+    CROSS_CAMERA_WEIGHT: float = 0.05
     
     model_config = SettingsConfigDict(
         env_file=(_ENV_PATH, ".env"),
